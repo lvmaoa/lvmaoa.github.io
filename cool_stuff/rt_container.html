@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<head>
+    <title>lvmaoa's blog</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <span style="color:#ffffff;">
+        <div class="outer">
+            <div class="main">
+                <a href="/index.html">Back to main page</a>
+                <br>
+                <!-- date -->
+                <p>18-03-2023</p>
+                <h1>The Effects of Real-Time Scheduling on Containers</h3>
+                <hr>
+                
+                <p>
+                    I specifically take a look at Podman and Docker and how they are effected by a real-time system 
+                    and scheduling. The following test were done on Linux 5.10.145 with the PREEMPT_RT patch (SCHED_RR).
+                    Tests were done a simple single core device so CPU affinity was not tested in this case. The
+                    following are samples of the tests,
+                </p>
+                <h3>Results</h3>
+                <a href="/cool_stuff/rt_container_tests.xlsx">Download Excel File</a>
+
+                <p>Perhaps I will add GPIO interrupt tests later.</p>
+                <h3>Conclusion</h3>
+                <p>
+                    One thing to note is that there seems to be no difference between Docker and container-less and
+                    this can be attributed to the fact that it is daemon-less. On the other hand, Docker seems completely
+                    fine (apart from the expected slow start up time). This is not actually true, since we are using SCHED_RR
+                    shrinking the time slices increases the worst case latencies (jumping all the way up over 2500us). This
+                    is to be expected though since it is a daemon.
+                </p>
+
+                <h3>Other Things to Consider</h3>
+                <p>
+                    One fear of the Docker daemon is that there may exist a situation where priority inversion occurs 
+                    which can cause performance issues. Of course, in this set up it is unlikely that such a situation 
+                    exists especially since the image I built was very minimal. The priority of the daemon becomes much
+                    more important when comparing it to root-less container engines such as Podman since the performance
+                    hit will be even greater if Docker has to jump between user mode and kernel mode. 
+                </p>
+                <h3>Contact Me</h3>
+                <ul>
+                    - <a href="https://www.linkedin.com/in/henryrren/" target="_blank">Linkedin</a>
+                    <br>
+                    - <a href="https://github.com/lvmaoa" target="_blank">GitHub</a>
+                    <br>
+                    - <a href="https://www.twitch.tv/apriltimeforlunch" target="_blank">Twitch</a>
+                    <br>
+                    - Resume coming soon
+                </ul>
+            </div>
+        </div>
+    </span>
+</body>
