@@ -26,21 +26,51 @@
                 <p>Perhaps I will add GPIO interrupt tests later.</p>
                 <h3>Conclusion</h3>
                 <p>
-                    One thing to note is that there seems to be no difference between Docker and container-less and
-                    this can be attributed to the fact that it is daemon-less. On the other hand, Docker seems completely
-                    fine (apart from the expected slow start up time). This is not actually true, since we are using SCHED_RR
-                    shrinking the time slices increases the worst case latencies (jumping all the way up over 2500us). This
-                    is to be expected though since it is a daemon.
+                    There seems to be no real performance difference between docker and container-less during these tests. 
+                    One thing to note is that since podman is daemon-less it does not have the issue that the docker engine
+                    has where the swarm manager has to essentially schedule the worker nodes. Since podman uses conmon (where
+                    conmon double-forks to daemonize and detach from the parent (podman) and launches its runtime as its child),
+                    this means that the scheduling is done by the RT scheduler. Though more investigation is needed to determine 
+                    how podman interacts with conmon.
                 </p>
 
-                <h3>Other Things to Consider</h3>
                 <p>
-                    One fear of the Docker daemon is that there may exist a situation where priority inversion occurs 
+                    Docker is not completely fine, it has an extremely slow start up time and causes the image to boot up much 
+                    slower than if docker was not included in the image. In addition, due to the way the swarm manager schedules 
+                    its workers, I have a theory that the consistently high worst case latencies is caused by the RT scheduler
+                    first scheduling the swarm manager and then the swarm manager instructs the worker node to perform a task.
+                    My suspicion comes from decreasing the SCHED_RR time slices which significantly increases the worst case 
+                    latencies (jumps all the way up to 2500us). This occurrence does not happen on podman.
+                </p>
+
+                <p>
+                    One fear of the docker daemon is that there may exist a situation where priority inversion occurs 
                     which can cause performance issues. Of course, in this set up it is unlikely that such a situation 
                     exists especially since the image I built was very minimal. The priority of the daemon becomes much
-                    more important when comparing it to root-less container engines such as Podman since the performance
-                    hit will be even greater if Docker has to jump between user mode and kernel mode. 
+                    more important when comparing it to root-less container engines such as podman since the performance
+                    hit will be even greater if docker has to jump between user mode and kernel mode. 
                 </p>
+                <h3>Other Issues</h3>
+                <ol>
+                    <li>There is a lack of tools for real-time container management which means that some container engines
+                        and their tools may not take into consideration the real-time requirements (e.g. docker swarm).</li>
+                    <li>Shared caches, memory and I/O can reduce the real-time behavior. This may be an issue with Containers
+                        as they would write to the shared cache more often and with a large amount of containers this may reduce the hit rate</li>
+                </ol>
+
+                <!-- <h3>Solutions</h3>
+                <p>
+
+                </p> -->
+
+                <h3>Citations</h3>
+                <p>
+                    Hofer, Florian, et al. "Industrial control via application containers: Migrating from bare-metal to IAAS." <i>arXiv preprint arXiv:1908.04465</i> (2019).
+                    <br>
+                    <br>
+                    Struhár, Václav et al. “Real-Time Containers: A Survey.” <i>Workshop on Fog Computing and the Internet of Things</i> (2020).
+                </p>
+                
                 <h3>Contact Me</h3>
                 <ul>
                     - <a href="https://www.linkedin.com/in/henryrren/" target="_blank">Linkedin</a>
